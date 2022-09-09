@@ -35,8 +35,7 @@ def imageToASCII(imagePath:str,fps):
     print(ascii_image+"\r")
     
 def videoToFrames(name:str):
-    os.mkdir("folder"
-             )
+    os.mkdir("folder")
     vidcap = cv2.VideoCapture(name)
     frames,sec = imageio_ffmpeg.count_frames_and_secs(name)
     fps = int(frames)/int(sec)
