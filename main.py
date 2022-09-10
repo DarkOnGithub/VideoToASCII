@@ -1,3 +1,4 @@
+from operator import truediv
 import cv2
 import sys
 from PIL import Image
@@ -7,11 +8,11 @@ import mimetypes
 import imageio_ffmpeg
 from tqdm import tqdm 
 mimetypes.init()
-
+col= os.get_terminal_size().columns
+line = os.get_terminal_size().lines
 aspect_ratio = None
 import shutil
 def imageToASCII(imagePath:str,fps):
-    time.sleep(fps)
     img = Image.open(imagePath)
     global aspect_ratio
     width, height = img.size
@@ -29,10 +30,14 @@ def imageToASCII(imagePath:str,fps):
     new_pixels_count = len(new_pixels)
     ascii_image = [new_pixels[index:index + new_width] for index in range(0, new_pixels_count, new_width)]
     l = len(ascii_image)
-    ascii_image[0] = ascii_image[0]  + "\n\n\n"  
-    asd = ascii_image[l-1]
-    ascii_image = "\n".join(ascii_image)
-    print(ascii_image+"\r")
+
+    for i in range(len(ascii_image)):
+        diff = col - len(ascii_image[i])
+        for a in range(diff):
+            ascii_image[i] += " "
+    ascii_image = "".join(ascii_image)    
+    time.sleep(fps)
+    print("\n\n"+ascii_image, end = "\r")
     
 def videoToFrames(name:str):
     os.mkdir("folder")
@@ -50,17 +55,17 @@ def videoToFrames(name:str):
         imageToASCII("./folder/frame"+str(i)+".jpg",1/int(fps))
     shutil.rmtree("folder",ignore_errors=True)
 def main():
+    
     args = sys.argv
     path = str(args[1])
     print(path)
 
     if path != None:
+        shutil.rmtree("folder",ignore_errors=True)
+
         if "video" in mimetypes.guess_type(path)[0]:
             videoToFrames(path)
         elif "image" in  mimetypes.guess_type(path)[0]:
             imageToASCII(path,0.01)
 if __name__=="__main__":
     main()
-
-
-
