@@ -1,4 +1,3 @@
-from operator import truediv
 import cv2
 import sys
 from PIL import Image
@@ -7,6 +6,7 @@ import os
 import mimetypes
 import imageio_ffmpeg
 from tqdm import tqdm 
+
 mimetypes.init()
 col= os.get_terminal_size().columns
 line = os.get_terminal_size().lines
@@ -29,16 +29,10 @@ def imageToASCII(imagePath:str,fps):
     new_pixels = ''.join(new_pixels)
     new_pixels_count = len(new_pixels)
     ascii_image = [new_pixels[index:index + new_width] for index in range(0, new_pixels_count, new_width)]
-    l = len(ascii_image)
-
-    for i in range(len(ascii_image)):
-        diff = col - len(ascii_image[i])
-        for a in range(diff):
-            ascii_image[i] += " "
-    ascii_image = "".join(ascii_image)    
+    ascii_image = "\n".join(ascii_image)    
     time.sleep(fps)
-    print("\n\n"+ascii_image, end = "\r")
-    
+    sys.stdout.writelines(ascii_image+"\n")
+    sys.stdout.writelines("\033[F"*int(new_height))
 def videoToFrames(name:str):
     os.mkdir("folder")
     vidcap = cv2.VideoCapture(name)
@@ -47,6 +41,7 @@ def videoToFrames(name:str):
     
     success,image = vidcap.read()
     count = 0
+
     for i in tqdm(range(frames)):
         cv2.imwrite("folder/frame%d.jpg" % count, image)     # save frame as JPEG file      
         success,image = vidcap.read()
@@ -55,7 +50,6 @@ def videoToFrames(name:str):
         imageToASCII("./folder/frame"+str(i)+".jpg",1/int(fps))
     shutil.rmtree("folder",ignore_errors=True)
 def main():
-    
     args = sys.argv
     path = str(args[1])
     print(path)
